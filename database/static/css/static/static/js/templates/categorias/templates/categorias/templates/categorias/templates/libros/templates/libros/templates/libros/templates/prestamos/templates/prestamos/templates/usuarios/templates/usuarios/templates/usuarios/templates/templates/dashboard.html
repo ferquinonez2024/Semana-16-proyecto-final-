@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="h3 mb-3">
+            <i class="bi bi-speedometer2 text-primary"></i> 
+            Dashboard del Sistema
+        </h1>
+        <p class="text-muted">Bienvenido, {{ session.user_name }}. Aquí tienes un resumen del estado actual de la biblioteca.</p>
+    </div>
+</div>
+
+<!-- Estadísticas principales -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm card-stats">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <span class="h2 mb-0">{{ stats.total_libros or 0 }}</span>
+                        <p class="text-muted mb-0">Total de Libros</p>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-book-fill text-primary" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm" style="border-left: 4px solid #28a745 !important;">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <span class="h2 mb-0">{{ stats.total_usuarios or 0 }}</span>
+                        <p class="text-muted mb-0">Usuarios Registrados</p>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-people-fill text-success" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm" style="border-left: 4px solid #ffc107 !important;">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <span class="h2 mb-0">{{ stats.prestamos_activos or 0 }}</span>
+                        <p class="text-muted mb-0">Préstamos Activos</p>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-arrow-left-right text-warning" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm" style="border-left: 4px solid #17a2b8 !important;">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <span class="h2 mb-0">{{ stats.total_categorias or 0 }}</span>
+                        <p class="text-muted mb-0">Categorías</p>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-tags-fill text-info" style="font-size: 2rem;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones rápidas -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-lightning-fill text-warning"></i> 
+                    Acciones Rápidas
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <a href="{{ url_for('crear_libro') }}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-plus-circle"></i><br>
+                            Agregar Libro
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('crear_usuario') }}" class="btn btn-outline-success w-100">
+                            <i class="bi bi-person-plus"></i><br>
+                            Nuevo Usuario
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('crear_prestamo') }}" class="btn btn-outline-warning w-100">
+                            <i class="bi bi-arrow-right-circle"></i><br>
+                            Registrar Préstamo
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{{ url_for('crear_categoria') }}" class="btn btn-outline-info w-100">
+                            <i class="bi bi-tag"></i><br>
+                            Nueva Categoría
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información del sistema -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle text-primary"></i> 
+                    Información del Sistema
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <strong>Usuario:</strong> {{ session.user_name }}
+                    </li>
+                    <li class="mb-2">
+                        <strong>Rol:</strong> 
+                        <span class="badge bg-primary">{{ session.user_role|title }}</span>
+                    </li>
+                    <li class="mb-2">
+                        <strong>Versión:</strong> 1.0.0
+                    </li>
+                    <li class="mb-0">
+                        <strong>Estado:</strong> 
+                        <span class="badge bg-success">Sistema Operativo</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-check text-success"></i> 
+                    Funcionalidades Disponibles
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-1">
+                                <i class="bi bi-check-circle text-success"></i> 
+                                Gestión de Usuarios
+                            </li>
+                            <li class="mb-1">
+                                <i class="bi bi-check-circle text-success"></i> 
+                                Catálogo de Libros
+                            </li>
+                            <li class="mb-1">
+                                <i class="bi bi-check-circle text-success"></i> 
+                                Control de Préstamos
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-6">
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-1">
+                                <i class="bi bi-check-circle text-success"></i> 
+                                Categorías
+                            </li>
+                            <li class="mb-1">
+                                <i class="bi bi-check-circle text-success"></i> 
+                                Dashboard
+                            </li>
+                            <li class="mb-1">
+                                <i class="bi bi-check-circle text-success"></i> 
+                                Autenticación
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
