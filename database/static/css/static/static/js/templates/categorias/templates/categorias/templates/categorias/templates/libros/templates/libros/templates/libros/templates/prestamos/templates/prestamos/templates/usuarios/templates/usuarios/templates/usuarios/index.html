@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Usuarios - Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h3 mb-0">
+            <i class="bi bi-people text-primary"></i> 
+            Gestión de Usuarios
+        </h1>
+        <p class="text-muted">Administra usuarios, bibliotecarios y lectores del sistema</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('crear_usuario') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nuevo Usuario
+        </a>
+    </div>
+</div>
+
+<!-- Tabla de usuarios -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">
+            <i class="bi bi-list"></i> 
+            Lista de Usuarios ({{ usuarios|length }})
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        {% if usuarios %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Teléfono</th>
+                        <th>Rol</th>
+                        <th>Fecha Registro</th>
+                        <th class="table-actions">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.id }}</td>
+                        <td>
+                            <strong>{{ usuario.nombre }}</strong>
+                            {% if not usuario.activo %}
+                            <span class="badge bg-secondary ms-1">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ usuario.email }}</td>
+                        <td>{{ usuario.telefono or '-' }}</td>
+                        <td>
+                            {% if usuario.rol == 'admin' %}
+                                <span class="badge bg-danger">Administrador</span>
+                            {% elif usuario.rol == 'bibliotecario' %}
+                                <span class="badge bg-warning">Bibliotecario</span>
+                            {% else %}
+                                <span class="badge bg-info">Usuario</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ usuario.fecha_registro.strftime('%d/%m/%Y') if usuario.fecha_registro else '-' }}</td>
+                        <td class="table-actions">
+                            <a href="{{ url_for('editar_usuario', id=usuario.id) }}" 
+                               class="btn btn-sm btn-outline-primary" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            
+                            {% if usuario.id != session.user_id %}
+                            <form method="POST" action="{{ url_for('eliminar_usuario', id=usuario.id) }}" 
+                                  style="display: inline;" 
+                                  onsubmit="return confirm('¿Estás seguro de que quieres eliminar este usuario?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            {% else %}
+                            <button class="btn btn-sm btn-outline-secondary" disabled title="No puedes eliminarte a ti mismo">
+                                <i class="bi bi-lock"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-people text-muted" style="font-size: 4rem;"></i>
+            <h5 class="text-muted mt-3">No hay usuarios registrados</h5>
+            <p class="text-muted">Comienza agregando el primer usuario al sistema</p>
+            <a href="{{ url_for('crear_usuario') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Crear Primer Usuario
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Resumen por roles -->
+{% if usuarios %}
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card border-0 bg-danger text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-1">{{ usuarios|selectattr('rol', 'equalto', 'admin')|list|length }}</h3>
+                <p class="mb-0">Administradores</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 bg-warning text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-1">{{ usuarios|selectattr('rol', 'equalto', 'bibliotecario')|list|length }}</h3>
+                <p class="mb-0">Bibliotecarios</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 bg-info text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-1">{{ usuarios|selectattr('rol', 'equalto', 'usuario')|list|length }}</h3>
+                <p class="mb-0">Usuarios</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
