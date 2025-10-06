@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Usuario - Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h3 mb-0">
+            <i class="bi bi-person-plus text-primary"></i> 
+            Crear Nuevo Usuario
+        </h1>
+        <p class="text-muted">Completa la información para registrar un nuevo usuario en el sistema</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('usuarios') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a Usuarios
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-form"></i> 
+                    Información del Usuario
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="nombre" class="form-label">
+                                    <i class="bi bi-person"></i> Nombre Completo <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="nombre" name="nombre" required
+                                       placeholder="Ej: Juan Pérez García">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">
+                                    <i class="bi bi-envelope"></i> Email <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email" required
+                                       placeholder="usuario@email.com">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <i class="bi bi-lock"></i> Contraseña <span class="text-danger">*</span>
+                                </label>
+                                <input type="password" class="form-control" id="password" name="password" required
+                                       placeholder="Mínimo 6 caracteres" minlength="6">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="telefono" class="form-label">
+                                    <i class="bi bi-telephone"></i> Teléfono
+                                </label>
+                                <input type="tel" class="form-control" id="telefono" name="telefono"
+                                       placeholder="Ej: 555-1234">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="direccion" class="form-label">
+                            <i class="bi bi-geo-alt"></i> Dirección
+                        </label>
+                        <textarea class="form-control" id="direccion" name="direccion" rows="3"
+                                  placeholder="Dirección completa del usuario"></textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="rol" class="form-label">
+                            <i class="bi bi-shield-check"></i> Rol del Usuario <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" id="rol" name="rol" required>
+                            <option value="">Selecciona un rol...</option>
+                            <option value="usuario">Usuario (Lector)</option>
+                            <option value="bibliotecario">Bibliotecario</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                        <div class="form-text">
+                            <strong>Usuario:</strong> Puede consultar libros y tener préstamos<br>
+                            <strong>Bibliotecario:</strong> Puede gestionar libros y préstamos<br>
+                            <strong>Administrador:</strong> Control total del sistema
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-check-circle"></i> Crear Usuario
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ url_for('usuarios') }}" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Validación del formulario
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const email = document.getElementById('email').value;
+        const nombre = document.getElementById('nombre').value;
+        
+        if (password.length < 6) {
+            e.preventDefault();
+            alert('La contraseña debe tener al menos 6 caracteres');
+            return;
+        }
+        
+        if (!email.includes('@')) {
+            e.preventDefault();
+            alert('Por favor ingresa un email válido');
+            return;
+        }
+        
+        if (nombre.trim().length < 3) {
+            e.preventDefault();
+            alert('El nombre debe tener al menos 3 caracteres');
+            return;
+        }
+    });
+</script>
+{% endblock %}
