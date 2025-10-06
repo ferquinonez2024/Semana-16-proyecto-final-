@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Préstamos - Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h3 mb-0">
+            <i class="bi bi-arrow-left-right text-primary"></i> 
+            Gestión de Préstamos
+        </h1>
+        <p class="text-muted">Control completo de préstamos y devoluciones de libros</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('crear_prestamo') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nuevo Préstamo
+        </a>
+    </div>
+</div>
+
+<!-- Filtros rápidos -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 bg-light">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="btn-group" role="group" aria-label="Filtros de estado">
+                            <input type="radio" class="btn-check" name="filtroEstado" id="todos" value="todos" checked>
+                            <label class="btn btn-outline-secondary" for="todos">Todos</label>
+                            
+                            <input type="radio" class="btn-check" name="filtroEstado" id="activos" value="activos">
+                            <label class="btn btn-outline-warning" for="activos">Activos</label>
+                            
+                            <input type="radio" class="btn-check" name="filtroEstado" id="devueltos" value="devueltos">
+                            <label class="btn btn-outline-success" for="devueltos">Devueltos</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="buscarPrestamo" placeholder="Buscar por usuario o libro...">
+                            <span class="input-group-text">
+                                <i class="bi bi-search"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de préstamos -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">
+            <i class="bi bi-list"></i> 
+            Registro de Préstamos ({{ prestamos|length }})
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        {% if prestamos %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" id="tablaPrestamos">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Libro</th>
+                        <th>Fecha Préstamo</th>
+                        <th>Fecha Devolución</th>
+                        <th>Estado</th>
+                        <th class="table-actions">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prestamo in prestamos %}
+                    <tr data-estado="{{ 'devuelto' if prestamo.fecha_devolucion else 'activo' }}">
+                        <td>{{ prestamo.id }}</td>
+                        <td>
+                            <strong>{{ prestamo.usuario_nombre }}</strong>
+                            <br><small class="text-muted">ID: {{ prestamo.usuario_id }}</small>
+                        </td>
+                        <td>
+                            <strong>{{ prestamo.libro_titulo }}</strong>
+                            <br><small class="text-muted">{{ prestamo.libro_id }}</small>
+                        </td>
+                        <td>{{ prestamo.fecha_prestamo.strftime('%d/%m/%Y') if prestamo.fecha_prestamo else '-' }}</td>
+                        <td>
+                            {% if prestamo.fecha_devolucion %}
+                                {{ prestamo.fecha_devolucion.strftime('%d/%m/%Y') }}
+                            {% else %}
+                                <span class="text-muted">Pendiente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if prestamo.fecha_devolucion %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle"></i> Devuelto
+                                </span>
+                            {% else %}
+                                {% set dias_transcurridos = (moment().date() - prestamo.fecha_prestamo).days if prestamo.fecha_prestamo else 0 %}
+                                {% if dias_transcurridos > 15 %}
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-exclamation-triangle"></i> Vencido
+                                    </span>
+                                {% elif dias_transcurridos > 12 %}
+                                    <span class="badge bg-warning">
+                                        <i class="bi bi-clock"></i> Por vencer
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-primary">
+                                        <i class="bi bi-arrow-right"></i> Activo
+                                    </span>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td class="table-actions">
+                            {% if not prestamo.fecha_devolucion %}
+                                <form method="POST" action="{{ url_for('devolver_libro', id=prestamo.id) }}" 
+                                      style="display: inline;" 
+                                      onsubmit="return confirm('¿Marcar este libro como devuelto?\n\nUsuario: {{ prestamo.usuario_nombre }}\nLibro: {{ prestamo.libro_titulo }}')">
+                                    <button type="submit" class="btn btn-sm btn-success" title="Marcar como devuelto">
+                                        <i class="bi bi-arrow-left"></i> Devolver
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="text-muted small">
+                                    <i class="bi bi-check-circle"></i> Completado
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-arrow-left-right text-muted" style="font-size: 4rem;"></i>
+            <h5 class="text-muted mt-3">No hay préstamos registrados</h5>
+            <p class="text-muted">Comienza registrando el primer préstamo de un libro</p>
+            <a href="{{ url_for('crear_prestamo') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Registrar Primer Préstamo
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Estadísticas de préstamos -->
+{% if prestamos %}
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card border-0 bg-primary text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-1">{{ prestamos|length }}</h3>
+                <p class="mb-0">Préstamos Totales</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 bg-warning text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-1">{{ prestamos|rejectattr('fecha_devolucion')|list|length }}</h3>
+                <p class="mb-0">Activos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 bg-success text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-1">{{ prestamos|selectattr('fecha_devolucion')|list|length }}</h3>
+                <p class="mb-0">Devueltos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 bg-info text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-1">{{ ((prestamos|selectattr('fecha_devolucion')|list|length / prestamos|length) * 100)|round|int if prestamos|length > 0 else 0 }}%</h3>
+                <p class="mb-0">Tasa de Devolución</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Funcionalidad de filtros
+    document.querySelectorAll('input[name="filtroEstado"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const filtro = this.value;
+            const filas = document.querySelectorAll('#tablaPrestamos tbody tr');
+            
+            filas.forEach(fila => {
+                const estado = fila.getAttribute('data-estado');
+                
+                if (filtro === 'todos') {
+                    fila.style.display = '';
+                } else if (filtro === 'activos' && estado === 'activo') {
+                    fila.style.display = '';
+                } else if (filtro === 'devueltos' && estado === 'devuelto') {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+    // Funcionalidad de búsqueda
+    document.getElementById('buscarPrestamo').addEventListener('input', function() {
+        const filter = this.value.toLowerCase();
+        const table = document.getElementById('tablaPrestamos');
+        const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            let found = false;
+            
+            // Buscar en usuario y libro (columnas 1 y 2)
+            for (let j = 1; j <= 2; j++) {
+                if (cells[j] && cells[j].textContent.toLowerCase().includes(filter)) {
+                    found = true;
+                    break;
+                }
+            }
+            
+            // Solo mostrar si pasa tanto el filtro como la búsqueda
+            const estadoVisible = rows[i].style.display !== 'none';
+            rows[i].style.display = (found && estadoVisible) ? '' : 'none';
+        }
+    });
+</script>
+{% endblock %}
