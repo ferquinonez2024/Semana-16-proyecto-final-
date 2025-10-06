@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Hero Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-4">
+                <i class="bi bi-book text-primary"></i>
+                Bienvenido al Sistema de Biblioteca
+            </h1>
+            <p class="lead text-muted mb-4">
+                Sistema completo de gestión bibliotecaria con funcionalidades de préstamos, 
+                catálogo de libros y administración de usuarios.
+            </p>
+            
+            {% if not session.user_id %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg me-md-2">
+                    <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                </a>
+            </div>
+            {% else %}
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg me-md-2">
+                    <i class="bi bi-speedometer2"></i> Ir al Dashboard
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Features Section -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-people-fill text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title">Gestión de Usuarios</h5>
+                        <p class="card-text text-muted">
+                            Administra usuarios, bibliotecarios y lectores con roles diferenciados 
+                            y control de acceso seguro.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-book-fill text-success" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title">Catálogo de Libros</h5>
+                        <p class="card-text text-muted">
+                            Gestión completa del inventario de libros con categorías, 
+                            información detallada y control de disponibilidad.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-arrow-left-right text-warning" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title">Control de Préstamos</h5>
+                        <p class="card-text text-muted">
+                            Sistema automatizado de préstamos y devoluciones con 
+                            seguimiento de fechas y disponibilidad.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="bi bi-tags-fill text-info" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title">Categorización</h5>
+                        <p class="card-text text-muted">
+                            Organiza los libros por categorías personalizables 
+                            para facilitar la búsqueda y navegación.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Info -->
+        {% if not session.user_id %}
+        <div class="card border-0 bg-light">
+            <div class="card-body text-center">
+                <h5 class="card-title mb-3">
+                    <i class="bi bi-gear-fill text-secondary"></i> 
+                    Información Técnica
+                </h5>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <strong>Backend</strong><br>
+                        <span class="text-muted">Flask (Python)</span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <strong>Base de Datos</strong><br>
+                        <span class="text-muted">MySQL 8.0</span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <strong>Frontend</strong><br>
+                        <span class="text-muted">Bootstrap 5</span>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <strong>Seguridad</strong><br>
+                        <span class="text-muted">Werkzeug</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
