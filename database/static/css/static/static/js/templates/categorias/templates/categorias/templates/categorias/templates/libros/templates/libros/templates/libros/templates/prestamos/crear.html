@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar Préstamo - Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h3 mb-0">
+            <i class="bi bi-arrow-right-circle text-primary"></i> 
+            Registrar Nuevo Préstamo
+        </h1>
+        <p class="text-muted">Completa la información para registrar un préstamo de libro</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('prestamos') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a Préstamos
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-form"></i> 
+                    Información del Préstamo
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if not usuarios or not libros %}
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Atención:</strong> 
+                    {% if not usuarios and not libros %}
+                        No hay usuarios ni libros disponibles.
+                    {% elif not usuarios %}
+                        No hay usuarios disponibles. <a href="{{ url_for('crear_usuario') }}" class="alert-link">Crea al menos un usuario</a> para poder registrar préstamos.
+                    {% else %}
+                        No hay libros disponibles. <a href="{{ url_for('crear_libro') }}" class="alert-link">Agrega al menos un libro</a> para poder registrar préstamos.
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label for="usuario_id" class="form-label">
+                                    <i class="bi bi-person"></i> Usuario (Lector) <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="usuario_id" name="usuario_id" required 
+                                        {{ 'disabled' if not usuarios else '' }}>
+                                    <option value="">Selecciona un usuario...</option>
+                                    {% for usuario in usuarios %}
+                                    <option value="{{ usuario.id }}">
+                                        {{ usuario.nombre }} ({{ usuario.email }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                {% if usuarios %}
+                                <div class="form-text">
+                                    Solo se muestran usuarios con rol "usuario" (lectores)
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label for="libro_id" class="form-label">
+                                    <i class="bi bi-book"></i> Libro Disponible <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="libro_id" name="libro_id" required 
+                                        {{ 'disabled' if not libros else '' }}>
+                                    <option value="">Selecciona un libro...</option>
+                                    {% for libro in libros %}
+                                    <option value="{{ libro.id }}">
+                                        {{ libro.titulo }} - {{ libro.autor }} 
+                                        ({{ libro.cantidad_disponible }} disponible{{ 's' if libro.cantidad_disponible != 1 else '' }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                {% if libros %}
+                                <div class="form-text">
+                                    Solo se muestran libros con ejemplares disponibles
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información del préstamo -->
+                    <div class="mb-4">
+                        <div class="card border-info">
+                            <div class="card-body">
+                                <h6 class="card-title text-info">
+                                    <i class="bi bi-info-circle"></i> Información del Préstamo
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="card-text mb-1">
+                                            <strong>Fecha de Préstamo:</strong><br>
+                                            {{ moment().strftime('%d/%m/%Y') }} (Hoy)
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="card-text mb-1">
+                                            <strong>Fecha Límite de Devolución:</strong><br>
+                                            {{ (moment() + timedelta(days=15)).strftime('%d/%m/%Y') }} (15 días)
+                                        </p>
+                                    </div>
+                                </div>
+                                <p class="card-text mb-0 small text-muted">
+                                    Los préstamos tienen una duración estándar de 15 días. 
+                                    El sistema reducirá automáticamente la cantidad disponible del libro seleccionado.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Resumen de disponibilidad -->
+                    {% if usuarios and libros %}
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card border-success">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title text-success">
+                                        <i class="bi bi-people"></i> Usuarios Disponibles
+                                    </h6>
+                                    <h3 class="text-success">{{ usuarios|length }}</h3>
+                                    <p class="card-text mb-0 small">Lectores registrados</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-primary">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title text-primary">
+                                        <i class="bi bi-book"></i> Libros Disponibles
+                                    </h6>
+                                    <h3 class="text-primary">{{ libros|length }}</h3>
+                                    <p class="card-text mb-0 small">Con ejemplares disponibles</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-primary w-100" 
+                                    {{ 'disabled' if not usuarios or not libros else '' }}>
+                                <i class="bi bi-check-circle"></i> Registrar Préstamo
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ url_for('prestamos') }}" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Validación del formulario
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const usuario_id = document.getElementById('usuario_id').value;
+        const libro_id = document.getElementById('libro_id').value;
+        
+        if (!usuario_id) {
+            e.preventDefault();
+            alert('Debes seleccionar un usuario');
+            return;
+        }
+        
+        if (!libro_id) {
+            e.preventDefault();
+            alert('Debes seleccionar un libro');
+            return;
+        }
+    });
+    
+    // Información dinámica del libro seleccionado
+    document.getElementById('libro_id').addEventListener('change', function() {
+        const option = this.options[this.selectedIndex];
+        if (option.value) {
+            const texto = option.text;
+            const disponibles = texto.match(/\((\d+) disponible/)[1];
+            
+            if (disponibles == 1) {
+                alert('Este es el último ejemplar disponible de este libro.');
+            }
+        }
+    });
+</script>
+{% endblock %}
