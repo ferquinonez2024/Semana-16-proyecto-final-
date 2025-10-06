@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Categorías - Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h3 mb-0">
+            <i class="bi bi-tags text-primary"></i> 
+            Gestión de Categorías
+        </h1>
+        <p class="text-muted">Organiza los libros por categorías para facilitar su clasificación y búsqueda</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('crear_categoria') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nueva Categoría
+        </a>
+    </div>
+</div>
+
+<!-- Grid de categorías -->
+{% if categorias %}
+<div class="row g-3">
+    {% for categoria in categorias %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="bi bi-tag-fill text-primary"></i> 
+                    {{ categoria.nombre }}
+                </h6>
+                <span class="badge bg-secondary">ID: {{ categoria.id }}</span>
+            </div>
+            <div class="card-body">
+                <p class="card-text text-muted mb-3">
+                    {{ categoria.descripcion if categoria.descripcion else 'Sin descripción disponible' }}
+                </p>
+                
+                <div class="text-muted small mb-3">
+                    <i class="bi bi-calendar"></i> 
+                    Creada: {{ categoria.fecha_creacion.strftime('%d/%m/%Y') if categoria.fecha_creacion else 'Fecha no disponible' }}
+                </div>
+            </div>
+            <div class="card-footer bg-transparent">
+                <div class="btn-group w-100" role="group">
+                    <a href="{{ url_for('editar_categoria', id=categoria.id) }}" 
+                       class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-pencil"></i> Editar
+                    </a>
+                    <form method="POST" action="{{ url_for('eliminar_categoria', id=categoria.id) }}" 
+                          style="display: inline;" 
+                          onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta categoría?\n\nATENCIÓN: Esto puede afectar a los libros asociados.')">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Resumen estadístico -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card border-0 bg-light">
+            <div class="card-body text-center">
+                <h5 class="card-title">
+                    <i class="bi bi-bar-chart text-info"></i> 
+                    Resumen de Categorías
+                </h5>
+                <div class="row">
+                    <div class="col-md-3">
+                        <h3 class="text-primary">{{ categorias|length }}</h3>
+                        <p class="text-muted mb-0">Categorías Totales</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="text-success">{{ categorias|length }}</h3>
+                        <p class="text-muted mb-0">Categorías Activas</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="text-info">{{ (categorias|selectattr('descripcion')|list|length) }}</h3>
+                        <p class="text-muted mb-0">Con Descripción</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h3 class="text-warning">{{ categorias|length - (categorias|selectattr('descripcion')|list|length) }}</h3>
+                        <p class="text-muted mb-0">Sin Descripción</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- Estado vacío -->
+<div class="text-center py-5">
+    <i class="bi bi-tags text-muted" style="font-size: 5rem;"></i>
+    <h3 class="text-muted mt-4">No hay categorías registradas</h3>
+    <p class="text-muted mb-4">
+        Las categorías te ayudan a organizar mejor tu biblioteca.<br>
+        Comienza creando la primera categoría.
+    </p>
+    <a href="{{ url_for('crear_categoria') }}" class="btn btn-primary btn-lg">
+        <i class="bi bi-plus-circle"></i> Crear Primera Categoría
+    </a>
+</div>
+{% endif %}
+{% endblock %}
