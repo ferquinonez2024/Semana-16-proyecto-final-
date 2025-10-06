@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Categoría - Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h3 mb-0">
+            <i class="bi bi-tag text-primary"></i> 
+            Crear Nueva Categoría
+        </h1>
+        <p class="text-muted">Define una nueva categoría para organizar mejor los libros de la biblioteca</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('categorias') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a Categorías
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-form"></i> 
+                    Información de la Categoría
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-4">
+                        <label for="nombre" class="form-label">
+                            <i class="bi bi-tag-fill"></i> Nombre de la Categoría <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required
+                               placeholder="Ej: Ficción, Ciencia, Historia, etc." maxlength="50">
+                        <div class="form-text">
+                            Nombre único que identifique esta categoría (máximo 50 caracteres)
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="descripcion" class="form-label">
+                            <i class="bi bi-text-paragraph"></i> Descripción
+                        </label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="4"
+                                  placeholder="Describe qué tipo de libros incluye esta categoría..."></textarea>
+                        <div class="form-text">
+                            Descripción opcional que ayude a entender qué contenido incluye esta categoría
+                        </div>
+                    </div>
+                    
+                    <!-- Ejemplos de categorías comunes -->
+                    <div class="mb-4">
+                        <h6 class="text-muted">
+                            <i class="bi bi-lightbulb"></i> Ejemplos de Categorías Comunes
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled text-muted small">
+                                    <li><i class="bi bi-arrow-right"></i> Ficción</li>
+                                    <li><i class="bi bi-arrow-right"></i> Ciencia y Tecnología</li>
+                                    <li><i class="bi bi-arrow-right"></i> Historia</li>
+                                    <li><i class="bi bi-arrow-right"></i> Biografías</li>
+                                    <li><i class="bi bi-arrow-right"></i> Literatura Clásica</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled text-muted small">
+                                    <li><i class="bi bi-arrow-right"></i> Arte y Cultura</li>
+                                    <li><i class="bi bi-arrow-right"></i> Filosofía</li>
+                                    <li><i class="bi bi-arrow-right"></i> Educación</li>
+                                    <li><i class="bi bi-arrow-right"></i> Autoayuda</li>
+                                    <li><i class="bi bi-arrow-right"></i> Ciencias Sociales</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-check-circle"></i> Crear Categoría
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ url_for('categorias') }}" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Validación del formulario
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const nombre = document.getElementById('nombre').value.trim();
+        
+        if (nombre.length < 2) {
+            e.preventDefault();
+            alert('El nombre de la categoría debe tener al menos 2 caracteres');
+            return;
+        }
+        
+        if (nombre.length > 50) {
+            e.preventDefault();
+            alert('El nombre de la categoría no puede tener más de 50 caracteres');
+            return;
+        }
+    });
+    
+    // Contador de caracteres para el nombre
+    document.getElementById('nombre').addEventListener('input', function() {
+        const maxLength = 50;
+        const currentLength = this.value.length;
+        const remaining = maxLength - currentLength;
+        
+        let feedbackElement = document.getElementById('nombre-feedback');
+        if (!feedbackElement) {
+            feedbackElement = document.createElement('div');
+            feedbackElement.id = 'nombre-feedback';
+            feedbackElement.className = 'form-text';
+            this.parentNode.appendChild(feedbackElement);
+        }
+        
+        feedbackElement.innerHTML = `Caracteres restantes: ${remaining}`;
+        feedbackElement.className = remaining < 10 ? 'form-text text-warning' : 'form-text text-muted';
+    });
