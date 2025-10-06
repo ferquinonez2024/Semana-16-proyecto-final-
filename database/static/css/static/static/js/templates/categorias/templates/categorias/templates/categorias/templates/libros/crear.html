@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Agregar Libro - Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h3 mb-0">
+            <i class="bi bi-plus-circle text-primary"></i> 
+            Agregar Nuevo Libro
+        </h1>
+        <p class="text-muted">Completa la información para agregar un nuevo libro al catálogo</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('libros') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver al Catálogo
+        </a>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-form"></i> 
+                    Información del Libro
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <!-- Información básica -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="titulo" class="form-label">
+                                    <i class="bi bi-book"></i> Título del Libro <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="titulo" name="titulo" required
+                                       placeholder="Ej: Cien años de soledad" maxlength="200">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="categoria_id" class="form-label">
+                                    <i class="bi bi-tag"></i> Categoría <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="categoria_id" name="categoria_id" required>
+                                    <option value="">Selecciona una categoría...</option>
+                                    {% for categoria in categorias %}
+                                    <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="autor" class="form-label">
+                                    <i class="bi bi-person"></i> Autor <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="autor" name="autor" required
+                                       placeholder="Ej: Gabriel García Márquez" maxlength="150">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="isbn" class="form-label">
+                                    <i class="bi bi-upc-scan"></i> ISBN
+                                </label>
+                                <input type="text" class="form-control" id="isbn" name="isbn"
+                                       placeholder="Ej: 978-84-376-0494-7" maxlength="20">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información de publicación -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="año_publicacion" class="form-label">
+                                    <i class="bi bi-calendar"></i> Año de Publicación
+                                </label>
+                                <input type="number" class="form-control" id="año_publicacion" name="año_publicacion"
+                                       min="1000" max="{{ 2025 }}" placeholder="Ej: 1967">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="editorial" class="form-label">
+                                    <i class="bi bi-building"></i> Editorial
+                                </label>
+                                <input type="text" class="form-control" id="editorial" name="editorial"
+                                       placeholder="Ej: Editorial Sudamericana" maxlength="100">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Control de inventario -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label for="cantidad_disponible" class="form-label">
+                                    <i class="bi bi-stack"></i> Cantidad de Ejemplares <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" class="form-control" id="cantidad_disponible" name="cantidad_disponible" 
+                                       required min="1" max="999" value="1">
+                                <div class="form-text">
+                                    Número de ejemplares físicos que se agregarán al inventario
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <div class="card border-info">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-info">
+                                            <i class="bi bi-info-circle"></i> Nota sobre Inventario
+                                        </h6>
+                                        <p class="card-text mb-0 small">
+                                            La cantidad que ingreses será la cantidad total disponible.
+                                            Cuando se realicen préstamos, esta cantidad se reducirá automáticamente.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Verificación de categorías -->
+                    {% if not categorias %}
+                    <div class="alert alert-warning" role="alert">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Atención:</strong> No hay categorías disponibles. 
+                        <a href="{{ url_for('crear_categoria') }}" class="alert-link">Crea al menos una categoría</a> 
+                        antes de agregar libros.
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-primary w-100" 
+                                    {{ 'disabled' if not categorias else '' }}>
+                                <i class="bi bi-check-circle"></i> Agregar Libro
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ url_for('libros') }}" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Validación del formulario
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const titulo = document.getElementById('titulo').value.trim();
+        const autor = document.getElementById('autor').value.trim();
+        const categoria_id = document.getElementById('categoria_id').value;
+        const cantidad = document.getElementById('cantidad_disponible').value;
+        
+        if (titulo.length < 3) {
+            e.preventDefault();
+            alert('El título del libro debe tener al menos 3 caracteres');
+            return;
+        }
+        
+        if (autor.length < 2) {
+            e.preventDefault();
+            alert('El nombre del autor debe tener al menos 2 caracteres');
+            return;
+        }
+        
+        if (!categoria_id) {
+            e.preventDefault();
+            alert('Debes seleccionar una categoría');
+            return;
+        }
+        
+        if (cantidad < 1 || cantidad > 999) {
+            e.preventDefault();
+            alert('La cantidad debe estar entre 1 y 999');
+            return;
+        }
+    });
+    
+    // Auto-completar año actual
+    document.getElementById('año_publicacion').addEventListener('focus', function() {
+        if (!this.value) {
+            this.value = new Date().getFullYear();
+        }
+    });
+    
+    // Formatear ISBN mientras se escribe
+    document.getElementById('isbn').addEventListener('input', function() {
+        // Remover todo excepto números y guiones
+        this.value = this.value.replace(/[^0-9\-]/g, '');
+    });
+</script>
+{% endblock %}
