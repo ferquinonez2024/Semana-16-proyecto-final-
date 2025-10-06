@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Catálogo de Libros - Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h3 mb-0">
+            <i class="bi bi-book text-primary"></i> 
+            Catálogo de Libros
+        </h1>
+        <p class="text-muted">Gestión completa del inventario de libros de la biblioteca</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('crear_libro') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Agregar Libro
+        </a>
+    </div>
+</div>
+
+<!-- Tabla de libros -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-light">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="mb-0">
+                    <i class="bi bi-list"></i> 
+                    Inventario de Libros ({{ libros|length }})
+                </h5>
+            </div>
+            <div class="col-auto">
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" id="buscarLibro" placeholder="Buscar libro...">
+                    <span class="input-group-text">
+                        <i class="bi bi-search"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% if libros %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0" id="tablaLibros">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Autor</th>
+                        <th>ISBN</th>
+                        <th>Categoría</th>
+                        <th>Año</th>
+                        <th>Editorial</th>
+                        <th>Disponibles</th>
+                        <th class="table-actions">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for libro in libros %}
+                    <tr>
+                        <td>{{ libro.id }}</td>
+                        <td>
+                            <strong>{{ libro.titulo }}</strong>
+                            {% if libro.cantidad_disponible == 0 %}
+                            <br><span class="badge bg-danger">Agotado</span>
+                            {% elif libro.cantidad_disponible <= 1 %}
+                            <br><span class="badge bg-warning">Pocos</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ libro.autor }}</td>
+                        <td>
+                            <code>{{ libro.isbn or '-' }}</code>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ libro.categoria_nombre }}</span>
+                        </td>
+                        <td>{{ libro.año_publicacion or '-' }}</td>
+                        <td>{{ libro.editorial or '-' }}</td>
+                        <td>
+                            <div class="text-center">
+                                <span class="h6 mb-0
+                                    {% if libro.cantidad_disponible == 0 %}text-danger
+                                    {% elif libro.cantidad_disponible <= 1 %}text-warning
+                                    {% else %}text-success{% endif %}">
+                                    {{ libro.cantidad_disponible }}
+                                </span>
+                                <small class="text-muted d-block">de {{ libro.cantidad_total or libro.cantidad_disponible }}</small>
+                            </div>
+                        </td>
+                        <td class="table-actions">
+                            <a href="{{ url_for('editar_libro', id=libro.id) }}" 
+                               class="btn btn-sm btn-outline-primary" title="Editar">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            
+                            <form method="POST" action="{{ url_for('eliminar_libro', id=libro.id) }}" 
+                                  style="display: inline;" 
+                                  onsubmit="return confirm('¿Estás seguro de que quieres eliminar este libro?\n\nTítulo: {{ libro.titulo }}\nAutor: {{ libro.autor }}')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-book text-muted" style="font-size: 4rem;"></i>
+            <h5 class="text-muted mt-3">No hay libros en el catálogo</h5>
+            <p class="text-muted">Comienza agregando el primer libro a la biblioteca</p>
+            <a href="{{ url_for('crear_libro') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Agregar Primer Libro
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Estadísticas del catálogo -->
+{% if libros %}
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card border-0 bg-primary text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-1">{{ libros|length }}</h3>
+                <p class="mb-0">Libros Totales</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 bg-success text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-1">{{ libros|selectattr('cantidad_disponible', 'gt', 0)|list|length }}</h3>
+                <p class="mb-0">Disponibles</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 bg-warning text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-1">{{ libros|selectattr('cantidad_disponible', 'le', 1)|selectattr('cantidad_disponible', 'gt', 0)|list|length }}</h3>
+                <p class="mb-0">Pocos Ejemplares</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 bg-danger text-white">
+            <div class="card-body text-center">
+                <h3 class="mb-1">{{ libros|selectattr('cantidad_disponible', 'equalto', 0)|list|length }}</h3>
+                <p class="mb-0">Agotados</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Funcionalidad de búsqueda
+    document.getElementById('buscarLibro').addEventListener('input', function() {
+        const filter = this.value.toLowerCase();
+        const table = document.getElementById('tablaLibros');
+        const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            let found = false;
+            
+            // Buscar en título, autor, ISBN y categoría
+            for (let j = 1; j <= 4; j++) {
+                if (cells[j] && cells[j].textContent.toLowerCase().includes(filter)) {
+                    found = true;
+                    break;
+                }
+            }
+            
+            rows[i].style.display = found ? '' : 'none';
+        }
+    });
+</script>
+{% endblock %}
