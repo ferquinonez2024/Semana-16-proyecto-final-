@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Libro - Sistema de Biblioteca{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1 class="h3 mb-0">
+            <i class="bi bi-pencil text-primary"></i> 
+            Editar Libro
+        </h1>
+        <p class="text-muted">Modifica la información del libro: {{ libro.titulo if libro else 'Libro no encontrado' }}</p>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{{ url_for('libros') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver al Catálogo
+        </a>
+    </div>
+</div>
+
+{% if libro %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="bi bi-form"></i> 
+                    Información del Libro
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <!-- Información básica -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="titulo" class="form-label">
+                                    <i class="bi bi-book"></i> Título del Libro <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="titulo" name="titulo" required
+                                       value="{{ libro.titulo }}" maxlength="200">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="categoria_id" class="form-label">
+                                    <i class="bi bi-tag"></i> Categoría <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="categoria_id" name="categoria_id" required>
+                                    {% for categoria in categorias %}
+                                    <option value="{{ categoria.id }}" 
+                                            {{ 'selected' if categoria.id == libro.categoria_id else '' }}>
+                                        {{ categoria.nombre }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="autor" class="form-label">
+                                    <i class="bi bi-person"></i> Autor <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="autor" name="autor" required
+                                       value="{{ libro.autor }}" maxlength="150">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="isbn" class="form-label">
+                                    <i class="bi bi-upc-scan"></i> ISBN
+                                </label>
+                                <input type="text" class="form-control" id="isbn" name="isbn"
+                                       value="{{ libro.isbn or '' }}" maxlength="20">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información de publicación -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="año_publicacion" class="form-label">
+                                    <i class="bi bi-calendar"></i> Año de Publicación
+                                </label>
+                                <input type="number" class="form-control" id="año_publicacion" name="año_publicacion"
+                                       value="{{ libro.año_publicacion or '' }}" min="1000" max="{{ 2025 }}">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="editorial" class="form-label">
+                                    <i class="bi bi-building"></i> Editorial
+                                </label>
+                                <input type="text" class="form-control" id="editorial" name="editorial"
+                                       value="{{ libro.editorial or '' }}" maxlength="100">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Control de inventario -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <label for="cantidad_disponible" class="form-label">
+                                    <i class="bi bi-stack"></i> Cantidad Disponible <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" class="form-control" id="cantidad_disponible" name="cantidad_disponible" 
+                                       required min="0" max="999" value="{{ libro.cantidad_disponible }}">
+                                <div class="form-text">
+                                    Ejemplares actualmente disponibles para préstamo
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <div class="card border-info">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-info">
+                                            <i class="bi bi-info-circle"></i> Estado del Inventario
+                                        </h6>
+                                        <p class="card-text mb-1">
+                                            <strong>Cantidad Total Original:</strong> {{ libro.cantidad_total or libro.cantidad_disponible }}
+                                        </p>
+                                        <p class="card-text mb-1">
+                                            <strong>Actualmente Disponibles:</strong> {{ libro.cantidad_disponible }}
+                                        </p>
+                                        <p class="card-text mb-0 small text-muted">
+                                            Ten cuidado al modificar las cantidades si hay préstamos activos.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información del sistema -->
+                    <div class="mb-4">
+                        <div class="card border-secondary">
+                            <div class="card-body">
+                                <h6 class="card-title text-secondary">
+                                    <i class="bi bi-gear"></i> Información del Sistema
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="card-text mb-1">
+                                            <strong>ID del Libro:</strong> {{ libro.id }}
+                                        </p>
+                                        <p class="card-text mb-0">
+                                            <strong>Fecha de Ingreso:</strong><br>
+                                            {{ libro.fecha_ingreso.strftime('%d/%m/%Y %H:%M') if libro.fecha_ingreso else 'No disponible' }}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="card-text mb-1">
+                                            <strong>Estado:</strong> 
+                                            {% if libro.cantidad_disponible == 0 %}
+                                                <span class="badge bg-danger">Agotado</span>
+                                            {% elif libro.cantidad_disponible <= 1 %}
+                                                <span class="badge bg-warning">Pocos ejemplares</span>
+                                            {% else %}
+                                                <span class="badge bg-success">Disponible</span>
+                                            {% endif %}
+                                        </p>
+                                        <p class="card-text mb-0">
+                                            <strong>Última Modificación:</strong><br>
+                                            <span class="text-muted">Se actualizará al guardar</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-check-circle"></i> Guardar Cambios
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="{{ url_for('libros') }}" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="bi bi-exclamation-triangle text-warning" style="font-size: 4rem;"></i>
+    <h3 class="text-warning mt-3">Libro No Encontrado</h3>
+    <p class="text-muted">El libro que intentas editar no existe o ha sido eliminado.</p>
+    <a href="{{ url_for('libros') }}" class="btn btn-primary">
+        <i class="bi bi-arrow-left"></i> Volver al Catálogo
+    </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Validación del formulario
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const titulo = document.getElementById('titulo').value.trim();
+        const autor = document.getElementById('autor').value.trim();
+        const cantidad = document.getElementById('cantidad_disponible').value;
+        
+        if (titulo.length < 3) {
+            e.preventDefault();
+            alert('El título del libro debe tener al menos 3 caracteres');
+            return;
+        }
+        
+        if (autor.length < 2) {
+            e.preventDefault();
+            alert('El nombre del autor debe tener al menos 2 caracteres');
+            return;
+        }
+        
+        if (cantidad < 0 || cantidad > 999) {
+            e.preventDefault();
+            alert('La cantidad debe estar entre 0 y 999');
+            return;
+        }
+    });
+    
+    // Formatear ISBN mientras se escribe
+    document.getElementById('isbn').addEventListener('input', function() {
+        // Remover todo excepto números y guiones
+        this.value = this.value.replace(/[^0-9\-]/g, '');
+    });
+    
+    // Alerta para cantidad cero
+    document.getElementById('cantidad_disponible').addEventListener('change', function() {
+        if (this.value == 0) {
+            alert('Al establecer la cantidad en 0, el libro aparecerá como "Agotado" y no estará disponible para préstamos.');
+        }
+    });
